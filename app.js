@@ -64,15 +64,18 @@
     return `${label}（あと${diff}日）`;
   }
 
-  function addTask(title, category, priority, due) {
-    state.tasks.push({
-      id: newId(),
-      title,
-      category,
-      priority,
-      due: due || null,
-      done: false,
-      createdAt: Date.now(),
+  function addTasks(items) {
+    const now = Date.now();
+    items.forEach(({ title, category, priority, due }, i) => {
+      state.tasks.push({
+        id: newId(),
+        title,
+        category,
+        priority,
+        due: due || null,
+        done: false,
+        createdAt: now + i,
+      });
     });
     save();
     render();
@@ -206,7 +209,7 @@
     e.preventDefault();
     const title = titleInput.value.trim();
     if (!title) return;
-    addTask(title, categoryInput.value, priorityInput.value, dueInput.value);
+    addTasks([{ title, category: categoryInput.value, priority: priorityInput.value, due: dueInput.value }]);
     titleInput.value = '';
     dueInput.value = '';
     titleInput.focus();
@@ -254,6 +257,119 @@
     save();
     render();
   });
+
+  // ---- 写真から追加 ----
+  const photoInput = $('#photo-input');
+  const ocrDialog = $('#ocr-dialog');
+  const ocrPreview = $('#ocr-preview');
+  const ocrStatus = $('#ocr-status');
+  const ocrStatusText = $('#ocr-status-text');
+  const ocrProgress = $('#ocr-progress');
+  const ocrError = $('#ocr-error');
+  const ocrResult = $('#ocr-result');
+  const ocrCandidates = $('#ocr-candidates');
+  const ocrConfirm = $('#ocr-confirm');
+  let ocrRun = 0;
+
+  function candidateRow({ title, due }) {
+    const li = document.createElement('li');
+    const check = document.createElement('input');
+    check.type = 'checkbox';
+    check.checked = true;
+    check.setAttribute('aria-label', '追加する');
+    const text = document.createElement('input');
+    text.type = 'text';
+    text.value = title;
+    text.maxLength = 200;
+    text.setAttribute('aria-label', 'タスク名');
+    const date = document.createElement('input');
+    date.type = 'date';
+    date.value = due || '';
+    date.setAttribute('aria-label', '期限');
+    li.append(check, text, date);
+    return li;
+  }
+
+  function updateConfirm() {
+    let count = 0;
+    for (const li of ocrCandidates.children) {
+      const [check, text] = li.querySelectorAll('input');
+      li.classList.toggle('unchecked', !check.checked);
+      if (check.checked && text.value.trim()) count++;
+    }
+    ocrConfirm.disabled = count === 0;
+    ocrConfirm.textContent = count ? `${count}件を追加` : '追加';
+  }
+
+  async function readPhoto(file) {
+    const run = ++ocrRun;
+    if (ocrPreview.src) URL.revokeObjectURL(ocrPreview.src);
+    ocrPreview.src = URL.createObjectURL(file);
+    ocrStatus.hidden = false;
+    ocrStatusText.textContent = '準備中…';
+    ocrProgress.removeAttribute('value');
+    ocrError.hidden = true;
+    ocrResult.hidden = true;
+    ocrCandidates.replaceChildren();
+    updateConfirm();
+    ocrDialog.showModal();
+
+    try {
+      const text = await window.TaskOCR.recognize(file, (label, progress) => {
+        if (run !== ocrRun) return;
+        ocrStatusText.textContent = `${label}… ${Math.round(progress * 100)}%`;
+        ocrProgress.value = progress;
+      });
+      if (run !== ocrRun) return;
+      const candidates = window.TaskOCR.parseTasks(text);
+      ocrStatus.hidden = true;
+      ocrResult.hidden = false;
+      if (candidates.length === 0) {
+        ocrError.textContent = '文字を読み取れませんでした。明るい場所で、文字が大きく写るように撮り直すか、下の「行を追加」から手入力してください。';
+        ocrError.hidden = false;
+      }
+      ocrCandidates.append(...candidates.map(candidateRow));
+      updateConfirm();
+    } catch (err) {
+      if (run !== ocrRun) return;
+      ocrStatus.hidden = true;
+      ocrError.textContent = err && err.message ? err.message : '読み取りに失敗しました。';
+      ocrError.hidden = false;
+    }
+  }
+
+  $('#photo-btn').addEventListener('click', () => photoInput.click());
+
+  photoInput.addEventListener('change', () => {
+    const file = photoInput.files[0];
+    photoInput.value = '';
+    if (file) readPhoto(file);
+  });
+
+  ocrCandidates.addEventListener('input', updateConfirm);
+
+  $('#ocr-add-line').addEventListener('click', () => {
+    const li = candidateRow({ title: '', due: null });
+    ocrCandidates.appendChild(li);
+    ocrError.hidden = true;
+    li.querySelector('input[type="text"]').focus();
+    updateConfirm();
+  });
+
+  ocrConfirm.addEventListener('click', () => {
+    const items = [];
+    for (const li of ocrCandidates.children) {
+      const [check, text, date] = li.querySelectorAll('input');
+      const title = text.value.trim();
+      if (!check.checked || !title) continue;
+      items.push({ title, category: categoryInput.value, priority: priorityInput.value, due: date.value });
+    }
+    if (items.length) addTasks(items);
+    ocrDialog.close();
+  });
+
+  // 閉じたら進行中の読み取り結果は捨てる
+  ocrDialog.addEventListener('close', () => { ocrRun++; });
 
   render();
 })();

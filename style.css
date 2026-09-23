@@ -191,3 +191,72 @@ input[type="text"], input[type="search"], input[type="date"], select {
   .filters { width: 100%; }
   .filters > * { flex: 1; }
 }
+
+/* ---- 写真から追加 ---- */
+.btn-secondary {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 14px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.btn-secondary:hover { background: var(--bg); }
+.form-row .photo-btn { margin-left: auto; }
+.form-row .photo-btn ~ .btn-primary { margin-left: 0; }
+
+.ocr-dialog {
+  width: min(560px, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--text);
+}
+.ocr-dialog::backdrop { background: rgba(0, 0, 0, 0.5); }
+.ocr-inner { padding: 20px; display: grid; gap: 12px; }
+.ocr-inner h2 { margin: 0; font-size: 1.2rem; }
+.ocr-preview {
+  max-width: 100%;
+  max-height: 200px;
+  object-fit: contain;
+  justify-self: center;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+.ocr-status p { margin: 0 0 6px; font-size: 0.9rem; color: var(--muted); }
+.ocr-status progress { width: 100%; }
+.ocr-error { color: var(--high); margin: 0; }
+.ocr-hint { margin: 0 0 8px; font-size: 0.8rem; color: var(--muted); }
+
+.ocr-candidates { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.ocr-candidates li {
+  display: grid;
+  grid-template-columns: auto 1fr 150px;
+  gap: 8px;
+  align-items: center;
+}
+.ocr-candidates input[type="checkbox"] { width: 18px; height: 18px; margin: 0; }
+.ocr-candidates li.unchecked input[type="text"],
+.ocr-candidates li.unchecked input[type="date"] { opacity: 0.5; }
+
+.ocr-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  position: sticky;
+  bottom: 0;
+  margin: 0 -20px -20px;
+  padding: 12px 20px 20px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+}
+.ocr-actions .btn-primary { margin-left: 0; }
+
+@media (max-width: 480px) {
+  .form-row .photo-btn { width: 100%; margin-left: 0; }
+  .ocr-candidates li { grid-template-columns: auto 1fr; row-gap: 4px; padding-bottom: 6px; }
+  .ocr-candidates input[type="date"] { grid-column: 2; }
+  .ocr-actions .btn-primary { width: auto; }
+}

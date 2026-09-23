@@ -37,6 +37,8 @@
           期限
           <input type="date" id="task-due">
         </label>
+        <button type="button" id="photo-btn" class="btn-secondary photo-btn">📷 写真から追加</button>
+        <input type="file" id="photo-input" accept="image/*" hidden>
         <button type="submit" class="btn-primary">追加</button>
       </div>
     </form>
@@ -72,6 +74,27 @@
     </footer>
   </main>
 
+  <dialog id="ocr-dialog" class="ocr-dialog">
+    <form method="dialog" class="ocr-inner">
+      <h2>写真から読み取り</h2>
+      <img id="ocr-preview" class="ocr-preview" alt="読み取る写真">
+      <div id="ocr-status" class="ocr-status">
+        <p id="ocr-status-text"></p>
+        <progress id="ocr-progress" max="1" value="0"></progress>
+      </div>
+      <p id="ocr-error" class="ocr-error" hidden></p>
+      <div id="ocr-result" hidden>
+        <p class="ocr-hint">追加するタスクにチェックを入れてください。文字や期限はここで修正できます。カテゴリと優先度は入力欄で選択中のものになります。</p>
+        <ul id="ocr-candidates" class="ocr-candidates"></ul>
+        <button type="button" id="ocr-add-line" class="btn-link">＋ 行を追加</button>
+      </div>
+      <div class="ocr-actions">
+        <button type="submit" value="cancel" class="btn-secondary">キャンセル</button>
+        <button type="button" id="ocr-confirm" class="btn-primary" disabled>追加</button>
+      </div>
+    </form>
+  </dialog>
+
   <template id="task-template">
     <li class="task">
       <input type="checkbox" class="task-check" aria-label="完了">
@@ -90,6 +113,7 @@
     </li>
   </template>
 
+  <script src="ocr.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
