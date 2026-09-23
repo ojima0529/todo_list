@@ -12,7 +12,25 @@ python3 -m http.server 8000
 # → http://localhost:8000
 ```
 
-GitHub Pages を有効にすれば、スマホからも利用できます。
+## スマホで使う
+
+公開URL：**https://ojima0529.github.io/todo_list/**
+
+### 最初に 1 回だけ：GitHub Pages を有効にする
+
+1. GitHub のリポジトリページ → **Settings** → 左メニューの **Pages**
+2. 「Build and deployment」の **Source** を「Deploy from a branch」にする
+3. **Branch** で `claude/task-management-app-mggr6n`、フォルダは `/ (root)` を選んで **Save**
+4. 1〜2 分待つと上の URL で開けるようになります
+
+### ホーム画面に追加する（アプリのように使える）
+
+- **iPhone（Safari）**：URL を開く → 下の共有ボタン（□↑）→「ホーム画面に追加」
+- **Android（Chrome）**：URL を開く → 右上の「︙」→「ホーム画面に追加」または「アプリをインストール」
+
+ホーム画面のアイコンから開くと全画面で表示され、電波がない場所でも開けます。
+
+> **注意（iPhone）**：Safari で開いたときと、ホーム画面のアイコンから開いたときでは、データが別々に保存されます。ホーム画面に追加したら、以降はアイコンから使ってください。
 
 ## 機能
 
@@ -47,3 +65,5 @@ GitHub Pages を有効にすれば、スマホからも利用できます。
 | `style.css` | デザイン |
 | `app.js` | 動作ロジック |
 | `ocr.js` | 写真の文字読み取りとタスク候補への変換 |
+| `sw.js` | オフライン対応（サービスワーカー） |
+| `manifest.webmanifest`, `icons/` | ホーム画面追加用の設定とアイコン |

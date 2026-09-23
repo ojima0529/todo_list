@@ -37,6 +37,8 @@ body {
   max-width: 720px;
   margin: 0 auto;
   padding: 24px 16px 48px;
+  padding: calc(24px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right))
+    calc(48px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left));
 }
 
 .app-header h1 { margin: 0; font-size: 1.6rem; }
@@ -46,6 +48,12 @@ input, select, button {
   font: inherit;
   color: inherit;
 }
+
+/* iPhone は 16px 未満の入力欄をタップすると画面が拡大されるので、入力欄は 16px 固定 */
+input, select { font-size: 16px; }
+
+button, input[type="checkbox"], select { touch-action: manipulation; }
+html { -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; }
 
 input[type="text"], input[type="search"], input[type="date"], select {
   background: var(--surface);
@@ -188,8 +196,15 @@ input[type="text"], input[type="search"], input[type="date"], select {
 
 @media (max-width: 480px) {
   .btn-primary { width: 100%; margin-left: 0; }
+  .btn-primary, .btn-secondary { min-height: 44px; }
+  .form-row label { flex: 1 1 30%; }
+  .form-row label input, .form-row label select { width: 100%; }
+  .tabs { width: 100%; }
+  .tab { flex: 1; min-height: 40px; }
   .filters { width: 100%; }
   .filters > * { flex: 1; }
+  .task-check { width: 24px; height: 24px; }
+  .btn-icon { width: 40px; height: 40px; font-size: 1.1rem; }
 }
 
 /* ---- 写真から追加 ---- */
